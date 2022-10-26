@@ -64,6 +64,7 @@ class EventListSerializer(serializers.ModelSerializer):
         model = models.Event
         fields = [
             "id_string",
+            "url",
             "title",
             "project",
             "date_start",

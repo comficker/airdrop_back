@@ -126,24 +126,29 @@ class EventViewSet(viewsets.GenericViewSet, generics.ListCreateAPIView, generics
         q = Q()
         if request.GET.get("is_mine") == "true" and request.user:
             q = q & Q(wallet=request.user)
+        else:
+            q = q & Q(is_public=True)
         if request.GET.get("is_following") == "true" and request.user:
             pass
         if request.GET.get("project"):
             q = q & Q(project_id=request.GET.get("project"))
         qs = models.Event.objects.prefetch_related("project").filter(q)
-        if "relevance" in order or "time_diff" in order:
+        if "relevance" in order:
             qs = qs.annotate(
                 relevance=Case(
                     When(date_start__gte=now, then=1),
                     When(date_start__lt=now, then=2),
                     output_field=IntegerField(),
-                )).annotate(
+                ))
+        if "time_diff" in order:
+            qs = qs.annotate(
                 time_diff=Case(
                     When(date_start__gte=now, then=F('date_start') - now),
                     When(date_start__lt=now, then=now - F('date_start')),
                     output_field=DurationField(),
                 )
-            ).order_by(*order)
+            )
+        qs = qs.order_by(*order)
         queryset = self.filter_queryset(qs)
         page = self.paginate_queryset(queryset)
         if page is not None:
