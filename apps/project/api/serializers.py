@@ -1,4 +1,5 @@
 from apps.project import models
+from apps.media.api.serializers import MediaSerializer
 from rest_framework import serializers
 
 
@@ -39,6 +40,10 @@ class ProjectListSerializer(serializers.ModelSerializer):
         model = models.Project
         fields = ["id_string", "name", "media"]
 
+    def to_representation(self, instance):
+        self.fields["media"] = MediaSerializer(read_only=True)
+        return super(ProjectListSerializer, self).to_representation(instance)
+
 
 class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
@@ -46,6 +51,10 @@ class ProjectSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ['db_status', 'created', 'updated', 'id_string']
         extra_fields = []
+
+    def to_representation(self, instance):
+        self.fields["media"] = MediaSerializer(read_only=True)
+        return super(ProjectSerializer, self).to_representation(instance)
 
 
 class EventListSerializer(serializers.ModelSerializer):
@@ -66,7 +75,7 @@ class EventListSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         self.fields["prizes"] = PrizeSerializer(read_only=True, many=True)
-        self.fields["project"] = ProjectSerializer(read_only=True)
+        self.fields["project"] = ProjectListSerializer(read_only=True)
         return super(EventListSerializer, self).to_representation(instance)
 
     def get_total_task(self, instance):
@@ -81,5 +90,5 @@ class EventSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         self.fields["prizes"] = PrizeSerializer(read_only=True, many=True)
-        self.fields["project"] = ProjectSerializer(read_only=True)
+        self.fields["project"] = ProjectListSerializer(read_only=True)
         return super(EventSerializer, self).to_representation(instance)
