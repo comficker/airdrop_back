@@ -1,0 +1,48 @@
+{
+  "token": [
+    {
+      "symbol": "USD",
+      "type": "FIAT",
+      "chain_id": "0",
+      "address": "0x"
+    },
+    {
+      "symbol": "USDT",
+      "type": "ERC20",
+      "chain_id": "56",
+      "address": "0x55d398326f99059ff775485246999027b3197955"
+    },
+    {
+      "symbol": "BUSD",
+      "type": "ERC20",
+      "chain_id": "56",
+      "address": "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56"
+    }
+  ],
+  "project": [
+    {
+      "name": "Oxalus Wallet",
+      "desc": "Truly Your NFT Wallet",
+      "media": "https://oxalus.io/icons/wallet.png",
+      "links": {
+        "homepage": "https://oxalus.io/wallet"
+      }
+    },
+    {
+      "name": "Aptos Names",
+      "desc": "Secure your .apt domain for your journey through the Aptos ecosystem.",
+      "media": "https://miro.medium.com/max/2400/1*Gf747eyRywU8Img0tK5wvw.png",
+      "links": {
+        "homepage": "https://aptoslabs.com"
+      }
+    },
+    {
+      "name": "Aptos",
+      "desc": "Aptos is a new, independent project to fulfill our vision of delivering the safest and most production-ready blockchain in the world.",
+      "media": "https://miro.medium.com/max/2400/1*Gf747eyRywU8Img0tK5wvw.png",
+      "links": {
+        "homepage": "https://aptoslabs.com"
+      }
+    }
+  ]
+}
