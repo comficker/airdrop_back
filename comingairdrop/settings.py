@@ -59,7 +59,7 @@ MIDDLEWARE = [
 
 CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",
-    "https://issomethingdown.com"
+    "https://ongoingairdrop.com"
 ]
 
 CORS_ALLOW_METHODS = [
