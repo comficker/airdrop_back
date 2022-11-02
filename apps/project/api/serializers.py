@@ -65,6 +65,7 @@ class EventListSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Event
         fields = [
+            "id",
             "id_string",
             "url",
             "title",
