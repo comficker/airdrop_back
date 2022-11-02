@@ -104,7 +104,10 @@ class EventSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Event
-        fields = '__all__'
+        fields = [
+            "id", "id_string", "is_joined", "is_following", "meta", "desc", "meta", "tasks", "project", "prizes",
+            "date_start", "date_end"
+        ]
         read_only_fields = [
             'db_status', 'created', 'updated', 'user', 'is_public', 'following', 'joined', "media", "meta",
             "is_joined",
