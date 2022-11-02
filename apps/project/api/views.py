@@ -1,7 +1,7 @@
 import base64
 from django.utils import timezone
 from django.db.models import Q, Case, When, IntegerField
-from django.db.models import F
+from django.db.models import F, Count
 from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.cache.backends.base import DEFAULT_TIMEOUT
@@ -184,6 +184,7 @@ class EventViewSet(viewsets.GenericViewSet, generics.ListCreateAPIView, generics
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
+        instance = models.Event.objects.get(pk=serializer.data["id"])
         if request.data.get("prizes"):
             for item in request.data["prizes"]:
                 models.Prize.objects.create(
@@ -193,7 +194,6 @@ class EventViewSet(viewsets.GenericViewSet, generics.ListCreateAPIView, generics
                     note=item.get("note")
                 )
         if request.data.get("media"):
-            instance = models.Event.objects.get(pk=serializer.data["id"])
             raw_media = request.data.get("media")
             fm, img_str = raw_media.split(';base64,')
             ext = fm.split('/')[-1]
@@ -205,7 +205,11 @@ class EventViewSet(viewsets.GenericViewSet, generics.ListCreateAPIView, generics
             )
             media.path.save(file_name, data)
             instance.media = media
-            instance.save()
+        instance.meta = {
+            "total_joined": 0,
+            "total_following": 0
+        }
+        instance.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
@@ -217,10 +221,16 @@ def event_join(request, pk):
         if request.method == 'GET':
             return Response(request.user in joined_list, status=status.HTTP_200_OK)
         else:
+            if instance.meta is None:
+                instance.meta = {}
+            if instance.meta.get("total_joined") is None:
+                instance.meta["total_joined"] = 0
             if request.user in joined_list:
                 instance.joined.remove(request.user)
             else:
                 instance.joined.add(request.user)
+            instance.meta["total_joined"] = instance.joined.count()
+            instance.save()
             return Response(status=status.HTTP_201_CREATED)
     else:
         return Response(status=status.HTTP_401_UNAUTHORIZED)
@@ -234,10 +244,16 @@ def event_follow(request, pk):
         if request.method == 'GET':
             return Response(request.user in follow_list, status=status.HTTP_200_OK)
         else:
+            if instance.meta is None:
+                instance.meta = {}
+            if instance.meta.get("total_following") is None:
+                instance.meta["total_following"] = 0
             if request.user in follow_list:
                 instance.following.remove(request.user)
             else:
                 instance.following.add(request.user)
+            instance.meta["total_following"] = instance.following.count()
+            instance.save()
             return Response(status=status.HTTP_201_CREATED)
     else:
         return Response(status=status.HTTP_401_UNAUTHORIZED)

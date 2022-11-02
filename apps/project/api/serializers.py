@@ -58,7 +58,9 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 
 class EventListSerializer(serializers.ModelSerializer):
-    total_task = serializers.SerializerMethodField()
+    is_joined = serializers.SerializerMethodField()
+    is_following = serializers.SerializerMethodField()
+    total_tasks = serializers.SerializerMethodField()
 
     class Meta:
         model = models.Event
@@ -69,8 +71,11 @@ class EventListSerializer(serializers.ModelSerializer):
             "project",
             "date_start",
             "date_end",
-            "total_task",
-            "prizes"
+            "prizes",
+            "meta",
+            "is_joined",
+            "is_following",
+            "total_tasks"
         ]
         read_only_fields = ["prizes"]
 
@@ -79,17 +84,44 @@ class EventListSerializer(serializers.ModelSerializer):
         self.fields["project"] = ProjectListSerializer(read_only=True)
         return super(EventListSerializer, self).to_representation(instance)
 
-    def get_total_task(self, instance):
+    def get_is_joined(self, instance):
+        if self.context.get("request") and self.context["request"].user.is_authenticated:
+            return self.context["request"].user in instance.joined.all()
+        return False
+
+    def get_is_following(self, instance):
+        if self.context.get("request") and self.context["request"].user.is_authenticated:
+            return self.context["request"].user in instance.following.all()
+        return False
+
+    def get_total_tasks(self, instance):
         return len(instance.tasks) if instance.tasks else 0
 
 
 class EventSerializer(serializers.ModelSerializer):
+    is_joined = serializers.SerializerMethodField()
+    is_following = serializers.SerializerMethodField()
+
     class Meta:
         model = models.Event
         fields = '__all__'
-        read_only_fields = ['db_status', 'created', 'updated', 'user', 'is_public', 'following', 'joined', "media"]
+        read_only_fields = [
+            'db_status', 'created', 'updated', 'user', 'is_public', 'following', 'joined', "media", "meta",
+            "is_joined",
+            "is_following"
+        ]
 
     def to_representation(self, instance):
         self.fields["prizes"] = PrizeSerializer(read_only=True, many=True)
         self.fields["project"] = ProjectListSerializer(read_only=True)
         return super(EventSerializer, self).to_representation(instance)
+
+    def get_is_joined(self, instance):
+        if self.context.get("request") and self.context["request"].user.is_authenticated:
+            return self.context["request"].user in instance.joined.all()
+        return False
+
+    def get_is_following(self, instance):
+        if self.context.get("request") and self.context["request"].user.is_authenticated:
+            return self.context["request"].user in instance.following.all()
+        return False
