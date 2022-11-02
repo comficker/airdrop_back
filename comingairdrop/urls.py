@@ -22,6 +22,7 @@ from . import view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('auth/', include('apps.authentication.api.urls')),
     path('project/', include('apps.project.api.urls')),
     path('main-sitemap.xsl', view.sitemap_style),
     path('sitemap_index.xml', view.sitemap_index),

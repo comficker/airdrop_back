@@ -37,11 +37,7 @@ class HasIDString(models.Model):
 
 
 class BlockChain(models.Model):
-    class ChainChoice(models.TextChoices):
-        CHAIN_BSC_MAINNET = "bsc_mainnet", _("BSC mainnet")
-        CHAIN_ETH_MAINNET = "eth_mainnet", _("ETH mainnet")
-
-    chain_id = models.CharField(default=ChainChoice.CHAIN_BSC_MAINNET, max_length=50)
+    chain_id = models.CharField(default="56", max_length=50)
     address = models.CharField(max_length=100, db_index=True)
 
     class Meta:

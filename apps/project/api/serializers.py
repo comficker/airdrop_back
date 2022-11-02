@@ -1,5 +1,5 @@
 from apps.project import models
-from apps.media.api.serializers import MediaSerializer
+from apps.media.api.serializers import SimpleMediaSerializer
 from rest_framework import serializers
 
 
@@ -41,7 +41,7 @@ class ProjectListSerializer(serializers.ModelSerializer):
         fields = ["id_string", "name", "media"]
 
     def to_representation(self, instance):
-        self.fields["media"] = MediaSerializer(read_only=True)
+        self.fields["media"] = SimpleMediaSerializer(read_only=True)
         return super(ProjectListSerializer, self).to_representation(instance)
 
 
@@ -53,7 +53,7 @@ class ProjectSerializer(serializers.ModelSerializer):
         extra_fields = []
 
     def to_representation(self, instance):
-        self.fields["media"] = MediaSerializer(read_only=True)
+        self.fields["media"] = SimpleMediaSerializer(read_only=True)
         return super(ProjectSerializer, self).to_representation(instance)
 
 

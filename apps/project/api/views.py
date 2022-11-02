@@ -1,6 +1,6 @@
 import base64
 from django.utils import timezone
-from django.db.models import Q, Case, When, IntegerField, DurationField
+from django.db.models import Q, Case, When, IntegerField
 from django.db.models import F
 from django.conf import settings
 from django.core.files.base import ContentFile
@@ -132,6 +132,17 @@ class EventViewSet(viewsets.GenericViewSet, generics.ListCreateAPIView, generics
             pass
         if request.GET.get("project"):
             q = q & Q(project_id=request.GET.get("project"))
+        if request.GET.get("page_name") == "upcoming":
+            q = q & Q(date_start__gte=now)
+        if request.GET.get("page_name") == "ongoing":
+            q = q & Q(date_start__lte=now, date_end__gte=now, date_start__isnull=False)
+        if request.GET.get("owner"):
+            q = q & Q(user__id=request.GET.get("owner"))
+        if request.GET.get("following"):
+            q = q & Q(following__id=request.GET.get("following"))
+        if request.GET.get("joining"):
+            q = q & Q(joined__id=request.GET.get("joining"))
+
         qs = models.Event.objects.prefetch_related("project").filter(q)
         if "relevance" in order:
             qs = qs.annotate(
@@ -141,13 +152,18 @@ class EventViewSet(viewsets.GenericViewSet, generics.ListCreateAPIView, generics
                     output_field=IntegerField(),
                 ))
         if "time_diff" in order:
-            qs = qs.annotate(
-                time_diff=Case(
-                    When(date_start__gte=now, then=F('date_start') - now),
-                    When(date_start__lt=now, then=now - F('date_start')),
-                    output_field=DurationField(),
+            time_diff = F('date_end') - now
+            if request.GET.get("page_name") == "upcoming":
+                time_diff = now - F('date_start')
+            if time_diff:
+                qs = qs.annotate(
+                    time_diff=time_diff
+                    # time_diff=Case(
+                    #     When(date_start__gte=now, then=F('date_start') - now),
+                    #     When(date_start__lt=now, then=now - F('date_start')),
+                    #     output_field=DurationField(),
+                    # )
                 )
-            )
         qs = qs.order_by(*order)
         queryset = self.filter_queryset(qs)
         page = self.paginate_queryset(queryset)
