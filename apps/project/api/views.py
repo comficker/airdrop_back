@@ -182,7 +182,7 @@ class EventViewSet(viewsets.GenericViewSet, generics.ListCreateAPIView, generics
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save(
-            user=request.user.id if request.user.is_authenticated else None
+            user=request.user if request.user.is_authenticated else None
         )
         headers = self.get_success_headers(serializer.data)
         instance = models.Event.objects.get(pk=serializer.data["id"])
