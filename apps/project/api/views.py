@@ -179,12 +179,15 @@ class EventViewSet(viewsets.GenericViewSet, generics.ListCreateAPIView, generics
     def create(self, request, *args, **kwargs):
         self.serializer_class = serializers.EventSerializer
         request.data["id_string"] = vi_slug(request.data["title"])
-        request.data["user"] = request.user.id if request.user.is_authenticated else None
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
+        serializer.save(
+            user=request.user.id if request.user.is_authenticated else None
+        )
         headers = self.get_success_headers(serializer.data)
         instance = models.Event.objects.get(pk=serializer.data["id"])
+        if request.user.is_authenticated and request.user.username == "lam":
+            instance.is_public = True
         if request.data.get("prizes"):
             for item in request.data["prizes"]:
                 models.Prize.objects.create(

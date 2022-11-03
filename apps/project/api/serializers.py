@@ -113,7 +113,8 @@ class EventSerializer(serializers.ModelSerializer):
         read_only_fields = [
             'db_status', 'created', 'updated', 'user', 'is_public', 'following', 'joined', "media", "meta",
             "is_joined",
-            "is_following"
+            "is_following",
+            "prizes"
         ]
 
     def to_representation(self, instance):
