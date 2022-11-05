@@ -125,7 +125,7 @@ class EventViewSet(viewsets.GenericViewSet, generics.ListCreateAPIView, generics
         now = timezone.now()
         q = Q()
         if request.GET.get("is_mine") == "true" and request.user:
-            q = q & Q(wallet=request.user)
+            q = q & Q(user=request.user)
         else:
             q = q & Q(is_public=True)
         if request.GET.get("is_following") == "true" and request.user:
