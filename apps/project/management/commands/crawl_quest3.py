@@ -75,6 +75,7 @@ def fetch_quest3_details(id_str):
             event.date_end = datetime.fromtimestamp(data["basic"]["end_time"], tz=pytz.utc)
         event.save()
 
+
 def fetch_quest3(page):
     re = requests.get(
         "https://api.quest3.xyz/consumer/quest/list/",
