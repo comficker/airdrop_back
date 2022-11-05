@@ -36,18 +36,20 @@ def fetch_quest3_details(id_str):
             project.media = media
             project.save()
     tasks = list(map(lambda y: y["template_info"]["name"], data["task"]))
-    event, _ = Event.objects.get_or_create(
+    event = Event.objects.filter(
         project=project,
-        title=data["basic"]["title"],
-        defaults={
-            "tasks": tasks,
-            "url": "https://app.quest3.xyz/quest/{}".format(id_str),
-            "is_public": True,
-            "date_start": datetime.fromtimestamp(data["basic"]["start_time"], tz=pytz.utc),
-            "date_end": datetime.fromtimestamp(data["basic"]["end_time"], tz=pytz.utc),
-        }
-    )
-    if _:
+        title=data["basic"]["title"]
+    ).first()
+    if event is None:
+        event = Event.objects.create(
+            project=project,
+            title=data["basic"]["title"],
+            tasks=tasks,
+            url="https://app.quest3.xyz/quest/{}".format(id_str),
+            is_public=True,
+            date_start=datetime.fromtimestamp(data["basic"]["start_time"], tz=pytz.utc),
+            date_end=datetime.fromtimestamp(data["basic"]["end_time"], tz=pytz.utc),
+        )
         raw_rewards = []
         if data["rewards"]["rewards_info"]["nft_info"].get("contract_address"):
             raw_rewards.append(data["rewards"]["rewards_info"]["nft_info"])
@@ -68,12 +70,11 @@ def fetch_quest3_details(id_str):
                     "value": raw.get("individual_benefits", 1)
                 }
             )
-    else:
-        if event.date_start is None and data["basic"]["start_time"]:
-            event.date_start = datetime.fromtimestamp(data["basic"]["end_time"], tz=pytz.utc)
-        if event.date_end is None and data["basic"]["end_time"]:
-            event.date_end = datetime.fromtimestamp(data["basic"]["end_time"], tz=pytz.utc)
-        event.save()
+    if event.date_start is None and data["basic"]["start_time"]:
+        event.date_start = datetime.fromtimestamp(data["basic"]["end_time"], tz=pytz.utc)
+    if event.date_end is None and data["basic"]["end_time"]:
+        event.date_end = datetime.fromtimestamp(data["basic"]["end_time"], tz=pytz.utc)
+    event.save()
 
 
 def fetch_quest3(page):

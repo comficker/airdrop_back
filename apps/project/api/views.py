@@ -129,7 +129,9 @@ class EventViewSet(viewsets.GenericViewSet, generics.ListCreateAPIView, generics
         else:
             q = q & Q(is_public=True)
         if request.GET.get("is_following") == "true" and request.user:
-            pass
+            q = q & Q(following=request.user)
+        if request.GET.get("is_joined") == "true" and request.user:
+            q = q & Q(joined=request.user)
         if request.GET.get("project"):
             q = q & Q(project__id_string=request.GET.get("project"))
         if request.GET.get("page_name") == "upcoming":
