@@ -131,7 +131,7 @@ class EventViewSet(viewsets.GenericViewSet, generics.ListCreateAPIView, generics
         if request.GET.get("is_following") == "true" and request.user:
             pass
         if request.GET.get("project"):
-            q = q & Q(project_id=request.GET.get("project"))
+            q = q & Q(project__id_string=request.GET.get("project"))
         if request.GET.get("page_name") == "upcoming":
             q = q & Q(date_start__gte=now)
         if request.GET.get("page_name") == "ongoing":
@@ -167,6 +167,12 @@ class EventViewSet(viewsets.GenericViewSet, generics.ListCreateAPIView, generics
         qs = qs.order_by(*order)
         queryset = self.filter_queryset(qs)
         page = self.paginate_queryset(queryset)
+        if request.GET.get("project"):
+            setattr(self.paginator, 'instance', serializers.ProjectSerializer(
+                models.Project.objects.get(
+                    id_string=request.GET.get("project")
+                )
+            ).data)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
