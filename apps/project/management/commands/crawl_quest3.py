@@ -39,12 +39,12 @@ def fetch_quest3_details(id_str):
     event, _ = Event.objects.get_or_create(
         project=project,
         title=data["basic"]["title"],
-        date_start=datetime.fromtimestamp(data["basic"]["start_time"], tz=pytz.utc),
-        date_end=datetime.fromtimestamp(data["basic"]["end_time"], tz=pytz.utc),
         defaults={
             "tasks": tasks,
             "url": "https://app.quest3.xyz/quest/{}".format(id_str),
-            "is_public": True
+            "is_public": True,
+            "date_start": datetime.fromtimestamp(data["basic"]["start_time"], tz=pytz.utc),
+            "date_end": datetime.fromtimestamp(data["basic"]["end_time"], tz=pytz.utc),
         }
     )
     if _:
@@ -68,7 +68,12 @@ def fetch_quest3_details(id_str):
                     "value": raw.get("individual_benefits", 1)
                 }
             )
-
+    else:
+        if event.date_start is None and data["basic"]["start_time"]:
+            event.date_start = datetime.fromtimestamp(data["basic"]["end_time"], tz=pytz.utc)
+        if event.date_end is None and data["basic"]["end_time"]:
+            event.date_end = datetime.fromtimestamp(data["basic"]["end_time"], tz=pytz.utc)
+        event.save()
 
 def fetch_quest3(page):
     re = requests.get(
