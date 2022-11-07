@@ -1,7 +1,7 @@
 import base64
 from django.utils import timezone
 from django.db.models import Q, Case, When, IntegerField
-from django.db.models import F, Count
+from django.db.models import F
 from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.cache.backends.base import DEFAULT_TIMEOUT
@@ -10,6 +10,7 @@ from rest_framework.response import Response
 from rest_framework import generics, viewsets
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.decorators import api_view
+from apps.authentication.models import Profile, Transaction
 from apps.base import pagination
 from apps.project import models
 from apps.media.models import Media
@@ -115,6 +116,13 @@ class EventViewSet(viewsets.GenericViewSet, generics.ListCreateAPIView, generics
     lookup_field = 'id_string'
 
     def retrieve(self, request, *args, **kwargs):
+        code = request.GET.get("referral_code")
+        if code:
+            # CHECK VISITOR AND MINT POINT TO PROFILE
+            profile = Profile.objects.filter(refer_code=code).first()
+            if profile:
+                profile.make_achievements("invite_view")
+
         self.serializer_class = serializers.EventSerializer
         return super(EventViewSet, self).retrieve(request, *args, **kwargs)
 
@@ -242,6 +250,10 @@ def event_join(request, pk):
                 instance.joined.add(request.user)
             instance.meta["total_joined"] = instance.joined.count()
             instance.save()
+            profile = request.user.profile
+            if profile is None:
+                profile = Profile.objects.create(user=request.user)
+            profile.make_achievements("join_event")
             return Response(status=status.HTTP_201_CREATED)
     else:
         return Response(status=status.HTTP_401_UNAUTHORIZED)
@@ -265,6 +277,10 @@ def event_follow(request, pk):
                 instance.following.add(request.user)
             instance.meta["total_following"] = instance.following.count()
             instance.save()
+            profile = request.user.profile
+            if profile is None:
+                profile = Profile.objects.create(user=request.user)
+            profile.make_achievements("follow_event")
             return Response(status=status.HTTP_201_CREATED)
     else:
         return Response(status=status.HTTP_401_UNAUTHORIZED)

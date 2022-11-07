@@ -3,6 +3,7 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 from apps.base.interface import BaseModel, HasIDString, BlockChain
 from apps.media.models import Media
+from apps.authentication.models import Profile
 from utils.slug import unique_slugify
 
 
@@ -56,6 +57,7 @@ class Event(BaseModel, HasIDString):
     desc = models.CharField(max_length=600, blank=True, null=True)
     term = models.CharField(max_length=600, blank=True, null=True)
 
+    credits = models.FloatField(default=0)
     prize_usd = models.FloatField(default=0)
 
     media = models.ForeignKey(Media, related_name="events", on_delete=models.SET_NULL, null=True, blank=True)
@@ -87,6 +89,17 @@ class Event(BaseModel, HasIDString):
         elif self.id is None and self.id_string:
             unique_slugify(self, self.id_string, "id_string")
         super(HasIDString, self).save(**kwargs)
+
+    def approve(self):
+        self.is_public = True
+        if self.user:
+            profile = self.user.profile
+            if profile is None:
+                Profile.objects.create(user=self.user)
+            profile.make_achievements("create_event")
+
+    def distribute_credits(self):
+        pass
 
 
 class Prize(BaseModel):

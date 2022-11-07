@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from apps.authentication.models import Wallet
+from apps.authentication.models import Wallet, Profile, Transaction
 
 
 class WalletSerializer(serializers.ModelSerializer):
@@ -13,16 +13,38 @@ class WalletSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    wallet = serializers.SerializerMethodField()
-
     class Meta:
         model = User
-        fields = ['id', 'first_name', 'last_name', 'username', 'wallet']
+        fields = ['id', 'first_name', 'last_name', 'username']
 
-    def get_wallet(self, instance):
-        if hasattr(instance, 'wallet'):
-            return WalletSerializer(instance.wallet).data
-        else:
-            wallet = Wallet(user=instance)
-            wallet.save()
-            return WalletSerializer(wallet).data
+
+class ProfileListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = ['id', 'user', 'media']
+
+    def to_representation(self, instance):
+        self.fields["user"] = UserSerializer(read_only=True)
+        return super(ProfileListSerializer, self).to_representation(instance)
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = [
+            'id', 'user', 'bio', 'options', 'links',
+            'media', 'refer_code', 'credits',
+            'achievements', 'is_active'
+        ]
+
+    def to_representation(self, instance):
+        self.fields["user"] = UserSerializer(read_only=True)
+        return super(ProfileSerializer, self).to_representation(instance)
+
+
+class TransactionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Transaction
+        fields = [
+            'profile', 'action_name', 'value', 'message'
+        ]
