@@ -103,6 +103,7 @@ class ProfileViewSet(viewsets.GenericViewSet, generics.RetrieveAPIView, generics
         return Response(serializer.data)
 
     def retrieve(self, request, *args, **kwargs):
+        self.serializer_class = ProfileSerializer
         if kwargs["pk"] == "0" and request.user.is_authenticated and not hasattr(request.user, 'profile'):
             instance = Profile.objects.create(user=request.user)
         else:
@@ -167,3 +168,5 @@ def create_referral_code(request):
         current_profile.refer_code = code
         current_profile.save()
         current_profile.make_achievements("create_referral_code")
+        return Response(ProfileSerializer(current_profile).data)
+    return Response(status=status.HTTP_401_UNAUTHORIZED)
