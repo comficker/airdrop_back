@@ -32,17 +32,19 @@ class Profile(BaseModel):
             }
         self.achievements[flag] = self.achievements.get(flag) + amount
         if not self.is_active \
-                and self.achievements.get("create_event") == 1 \
-                and self.achievements.get("follow_event") == 5 \
-                and self.achievements.get("join_event") == 5 \
-                and self.achievements.get("create_referral_code") == 1 \
-                and self.achievements.get("invite_friend") == 1:
+                and self.achievements.get("create_event") >= 1 \
+                and self.achievements.get("follow_event") >= 5 \
+                and self.achievements.get("join_event") >= 5 \
+                and self.achievements.get("create_referral_code") >= 1 \
+                and self.achievements.get("invite_view") >= 5:
             self.is_active = True
         amount = 0
         if flag == "create_event":
-            amount = 5
-        if flag == "invite_view":
             amount = 1
+        if flag == "invite_friend":
+            amount = 0.1
+        if flag == "invite_view":
+            amount = 0.001
         if amount > 0:
             self.make_transaction(flag, amount)
         self.save()
