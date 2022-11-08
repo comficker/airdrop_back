@@ -120,7 +120,7 @@ class EventViewSet(viewsets.GenericViewSet, generics.ListCreateAPIView, generics
         if code:
             # CHECK VISITOR AND MINT POINT TO PROFILE
             profile = Profile.objects.filter(refer_code=code).first()
-            if profile:
+            if profile and (not request.user.is_authenticated or not (request.user.profile is profile)):
                 profile.make_achievements("invite_view")
 
         self.serializer_class = serializers.EventSerializer
