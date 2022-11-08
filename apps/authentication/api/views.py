@@ -103,7 +103,7 @@ class ProfileViewSet(viewsets.GenericViewSet, generics.RetrieveAPIView, generics
         return Response(serializer.data)
 
     def retrieve(self, request, *args, **kwargs):
-        if kwargs["pk"] == 0 and request.user.is_authenticated and request.user.profile is None:
+        if kwargs["pk"] == "0" and request.user.is_authenticated and request.user.profile is None:
             instance = Profile.objects.create(user=request.user)
         else:
             instance = self.get_object()
