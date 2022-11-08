@@ -71,7 +71,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
 class TransactionViewSet(viewsets.GenericViewSet, generics.ListAPIView):
     models = Transaction
-    queryset = models.objects.all()
+    queryset = models.objects.order_by("-created")
     serializer_class = TransactionSerializer
     pagination_class = pagination.Pagination
     filter_backends = [OrderingFilter, SearchFilter]
@@ -100,6 +100,14 @@ class ProfileViewSet(viewsets.GenericViewSet, generics.RetrieveAPIView, generics
             return self.get_paginated_response(serializer.data)
 
         serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, *args, **kwargs):
+        if kwargs["pk"] == 0 and request.user.is_authenticated and request.user.profile is None:
+            instance = Profile.objects.create(user=request.user)
+        else:
+            instance = self.get_object()
+        serializer = self.get_serializer(instance)
         return Response(serializer.data)
 
 
