@@ -15,5 +15,6 @@ urlpatterns = [
     path('user', views.get_auth_user, name='get_auth_user'),
     path('token', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh', TokenRefreshView.as_view(), name='token_refresh'),
+    path('referral-code', views.create_referral_code, name='create_referral_code'),
     path('', include(router.urls)),
 ]
