@@ -106,7 +106,7 @@ class EventSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Event
         fields = [
-            "name", "title",
+            "name", "title", "url",
             "id", "id_string", "is_joined", "is_following", "meta", "desc", "meta", "tasks", "project", "prizes",
             "date_start", "date_end"
         ]
