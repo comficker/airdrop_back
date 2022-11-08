@@ -161,7 +161,7 @@ def get_auth_user(request):
 def create_referral_code(request):
     code = request.data.get("referral_code")
     if Profile.objects.filter(refer_code=code).first() is None:
-        current_profile = request.user.profile
+        current_profile = request.user.profile if hasattr(request.user, 'profile') else None
         if current_profile is None:
             current_profile = Profile.objects.create(user=request.user)
         current_profile.refer_code = code

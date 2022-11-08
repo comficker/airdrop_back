@@ -93,7 +93,7 @@ class Event(BaseModel, HasIDString):
     def approve(self):
         self.is_public = True
         if self.user:
-            profile = self.user.profile
+            profile = self.user.profile if hasattr(self.user, 'profile') else None
             if profile is None:
                 Profile.objects.create(user=self.user)
             profile.make_achievements("create_event")
