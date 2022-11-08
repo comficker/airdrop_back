@@ -116,7 +116,10 @@ class ProfileViewSet(viewsets.GenericViewSet, generics.RetrieveAPIView, generics
 def get_auth_user(request):
     if request.method == "GET":
         if request.user.is_authenticated:
-            return Response(UserSerializer(request.user).data)
+            current_profile = request.user.profile if hasattr(request.user, 'profile') else None
+            if current_profile is None:
+                current_profile = Profile.objects.create(user=request.user)
+            return Response(ProfileSerializer(current_profile).data)
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
     elif request.method == "POST":

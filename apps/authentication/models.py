@@ -20,7 +20,7 @@ class Profile(BaseModel):
     achievements = models.JSONField(null=True, blank=True)
     is_active = models.BooleanField(default=False)
 
-    def make_achievements(self, flag):
+    def make_achievements(self, flag, amount=1):
         if self.achievements is None:
             self.achievements = {
                 "create_event": 0,
@@ -30,7 +30,7 @@ class Profile(BaseModel):
                 "invite_friend": 0,
                 "invite_view": 0
             }
-        self.achievements[flag] = self.achievements.get(flag) + 1
+        self.achievements[flag] = self.achievements.get(flag) + amount
         if not self.is_active \
                 and self.achievements.get("create_event") == 1 \
                 and self.achievements.get("follow_event") == 5 \

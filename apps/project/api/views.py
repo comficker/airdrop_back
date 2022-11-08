@@ -240,20 +240,23 @@ def event_join(request, pk):
         if request.method == 'GET':
             return Response(request.user in joined_list, status=status.HTTP_200_OK)
         else:
+            profile = request.user.profile if hasattr(request.user, 'profile') else None
+            if profile is None:
+                profile = Profile.objects.create(user=request.user)
+
             if instance.meta is None:
                 instance.meta = {}
             if instance.meta.get("total_joined") is None:
                 instance.meta["total_joined"] = 0
             if request.user in joined_list:
                 instance.joined.remove(request.user)
+                profile.make_achievements("join_event", amount=-1)
             else:
                 instance.joined.add(request.user)
+                profile.make_achievements("join_event", amount=1)
             instance.meta["total_joined"] = instance.joined.count()
             instance.save()
-            profile = request.user.profile
-            if profile is None:
-                profile = Profile.objects.create(user=request.user)
-            profile.make_achievements("join_event")
+
             return Response(status=status.HTTP_201_CREATED)
     else:
         return Response(status=status.HTTP_401_UNAUTHORIZED)
@@ -267,20 +270,23 @@ def event_follow(request, pk):
         if request.method == 'GET':
             return Response(request.user in follow_list, status=status.HTTP_200_OK)
         else:
+            profile = request.user.profile if hasattr(request.user, 'profile') else None
+            if profile is None:
+                profile = Profile.objects.create(user=request.user)
+
             if instance.meta is None:
                 instance.meta = {}
             if instance.meta.get("total_following") is None:
                 instance.meta["total_following"] = 0
             if request.user in follow_list:
+                profile.make_achievements("follow_event", amount=-1)
                 instance.following.remove(request.user)
             else:
+                profile.make_achievements("follow_event", amount=1)
                 instance.following.add(request.user)
             instance.meta["total_following"] = instance.following.count()
             instance.save()
-            profile = request.user.profile
-            if profile is None:
-                profile = Profile.objects.create(user=request.user)
-            profile.make_achievements("follow_event")
+
             return Response(status=status.HTTP_201_CREATED)
     else:
         return Response(status=status.HTTP_401_UNAUTHORIZED)

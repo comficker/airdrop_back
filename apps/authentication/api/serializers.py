@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from apps.authentication.models import Wallet, Profile, Transaction
+from apps.media.api.serializers import MediaSerializer
 
 
 class WalletSerializer(serializers.ModelSerializer):
@@ -39,6 +40,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         self.fields["user"] = UserSerializer(read_only=True)
+        self.fields["media"] = MediaSerializer(read_only=True)
         return super(ProfileSerializer, self).to_representation(instance)
 
 
