@@ -116,7 +116,7 @@ class EventViewSet(viewsets.GenericViewSet, generics.ListCreateAPIView, generics
     lookup_field = 'id_string'
 
     def retrieve(self, request, *args, **kwargs):
-        code = request.GET.get("referral_code")
+        code = request.GET.get("refer_code")
         if code:
             # CHECK VISITOR AND MINT POINT TO PROFILE
             profile = Profile.objects.filter(refer_code=code).first()
