@@ -48,5 +48,5 @@ class TransactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Transaction
         fields = [
-            'profile', 'action_name', 'value', 'message'
+            'profile', 'action_name', 'value', 'message', 'created'
         ]
